@@ -60,40 +60,8 @@
       "@type": "Offer",
       "price": "9.99",
       "priceCurrency": "USD",
-      "availability": "https://schema.org/InStock",
-      "priceValidUntil": "2027-12-31",
-      "shippingDetails": {
-        "@type": "OfferShippingDetails",
-        "shippingRate": {
-          "@type": "MonetaryAmount",
-          "value": "0",
-          "currency": "USD"
-        },
-        "shippingDestination": {
-          "@type": "DefinedRegion",
-          "addressCountry": "US"
-        },
-        "deliveryTime": {
-          "@type": "ShippingDeliveryTime",
-          "handlingTime": {
-            "@type": "QuantitativeValue",
-            "minValue": "1",
-            "maxValue": "2",
-            "unitCode": "DAY"
-          },
-          "transitTime": {
-            "@type": "QuantitativeValue",
-            "minValue": "3",
-            "maxValue": "7",
-            "unitCode": "DAY"
-          }
-        }
-      }
-    },
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "reviewCount": "127"
+      "availability": "https://schema.org/PreOrder",
+      "priceValidUntil": "2027-12-31"
     }
   }
   </script>
@@ -130,10 +98,10 @@
       },
       {
         "@type": "Question",
-        "name": "How much does SmoothStraw cost?",
+        "name": "When will SmoothStraw be available?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "SmoothStraw starts at $9.99. We offer free shipping on orders over $25. Multi-packs are available at a discount."
+          "text": "SmoothStraw is currently in pre-launch. Join our waitlist to be notified when we launch and receive exclusive early-bird pricing."
         }
       },
       {
@@ -156,69 +124,159 @@
   }
   </script>
 
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Inter', -apple-system, sans-serif; background: #fafafa; color: #1a1a1a; }
-    nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); position: sticky; top: 0; z-index: 100; }
     nav .logo { font-weight: 300; font-size: 1.4rem; letter-spacing: 2px; }
-    nav .links a { color: #666; text-decoration: none; margin-left: 30px; font-size: 0.85rem; letter-spacing: 1px; }
-    .hero { padding: 120px 20px; text-align: center; background: #fff; }
+    nav .links a { color: #666; text-decoration: none; margin-left: 30px; font-size: 0.85rem; letter-spacing: 1px; transition: color 0.2s; }
+    nav .links a:hover { color: #1a1a1a; }
+    
+    .hero { padding: 100px 20px 80px; text-align: center; background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%); }
     .hero .product-img { font-size: 8rem; margin-bottom: 30px; }
-    .hero h1 { font-size: 2.5rem; font-weight: 300; margin-bottom: 15px; letter-spacing: 1px; }
-    .hero p { color: #666; font-size: 1.1rem; max-width: 500px; margin: 0 auto 40px; line-height: 1.7; }
-    .hero .cta { background: #1a1a1a; color: #fff; padding: 15px 50px; font-size: 0.9rem; letter-spacing: 2px; text-decoration: none; display: inline-block; }
-    .hero .price { margin-top: 15px; color: #888; font-size: 0.9rem; }
+    .hero h1 { font-size: 2.8rem; font-weight: 300; margin-bottom: 15px; letter-spacing: 1px; }
+    .hero .tagline { color: #666; font-size: 1.15rem; max-width: 550px; margin: 0 auto 30px; line-height: 1.7; }
+    .hero .launch-badge { background: #3b82f6; color: #fff; padding: 8px 20px; border-radius: 20px; font-size: 0.8rem; letter-spacing: 1px; display: inline-block; margin-bottom: 30px; }
+    .hero .price { margin-top: 20px; color: #888; font-size: 0.95rem; }
+    
+    .waitlist-form { max-width: 500px; margin: 30px auto 0; background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .waitlist-form h3 { font-weight: 500; margin-bottom: 15px; font-size: 1.1rem; }
+    .waitlist-form p { color: #666; font-size: 0.9rem; margin-bottom: 20px; }
+    .waitlist-form input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem; }
+    .waitlist-form button { width: 100%; background: #1a1a1a; color: #fff; padding: 14px; border: none; border-radius: 6px; font-size: 0.9rem; letter-spacing: 1px; cursor: pointer; transition: background 0.2s; }
+    .waitlist-form button:hover { background: #333; }
+    .waitlist-form .success { display: none; color: #10b981; margin-top: 15px; text-align: center; }
+    
+    .how-it-works { padding: 80px 20px; background: #fff; }
+    .how-it-works h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
+    .steps { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .step { text-align: center; }
+    .step .num { background: #1a1a1a; color: #fff; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-weight: 600; }
+    .step h3 { font-weight: 500; margin-bottom: 10px; font-size: 1rem; }
+    .step p { color: #666; font-size: 0.9rem; line-height: 1.6; }
+    
     .science { padding: 80px 20px; background: #f5f5f5; }
     .science-inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
     .science h2 { font-weight: 300; font-size: 2rem; margin-bottom: 20px; }
     .science p { color: #666; line-height: 1.8; margin-bottom: 20px; }
     .science ul { color: #666; line-height: 2; padding-left: 20px; }
     .science .diagram { font-size: 6rem; text-align: center; }
-    .benefits { padding: 80px 20px; background: #fff; }
+    
+    .comparison { padding: 80px 20px; background: #fff; }
+    .comparison h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
+    .comparison-table { max-width: 900px; margin: 0 auto; border-collapse: collapse; width: 100%; }
+    .comparison-table th { background: #1a1a1a; color: #fff; padding: 15px; text-align: left; font-weight: 500; font-size: 0.9rem; }
+    .comparison-table td { padding: 15px; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .comparison-table .checkmark { color: #10b981; font-weight: bold; }
+    .comparison-table .cross { color: #ef4444; font-weight: bold; }
+    .comparison-table .highlight { background: #f0fdf4; }
+    
+    .benefits { padding: 80px 20px; background: #f5f5f5; }
     .benefits h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
     .benefits-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
     .benefit { text-align: center; }
     .benefit .icon { font-size: 2.5rem; margin-bottom: 15px; }
     .benefit h3 { font-weight: 500; margin-bottom: 10px; font-size: 1rem; }
     .benefit p { color: #888; font-size: 0.85rem; line-height: 1.6; }
-    .compatibility { padding: 60px 20px; background: #f5f5f5; text-align: center; }
+    
+    .compatibility { padding: 60px 20px; background: #fff; text-align: center; }
     .compatibility h2 { font-weight: 300; margin-bottom: 30px; }
     .cups { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
     .cup { text-align: center; }
     .cup .img { font-size: 3rem; }
     .cup p { font-size: 0.8rem; color: #888; margin-top: 5px; }
+    
+    .pricing { padding: 80px 20px; background: #f5f5f5; }
+    .pricing h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
+    .pricing-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .price-card { background: #fff; padding: 40px 30px; border-radius: 12px; text-align: center; border: 2px solid transparent; transition: all 0.3s; }
+    .price-card:hover { border-color: #1a1a1a; transform: translateY(-5px); }
+    .price-card.popular { border-color: #3b82f6; position: relative; }
+    .price-card.popular::before { content: "MOST POPULAR"; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: #fff; padding: 4px 12px; border-radius: 12px; font-size: 0.7rem; letter-spacing: 1px; }
+    .price-card h3 { font-weight: 500; margin-bottom: 15px; }
+    .price-card .price-amount { font-size: 2.5rem; font-weight: 300; margin-bottom: 5px; }
+    .price-card .price-unit { color: #888; font-size: 0.85rem; margin-bottom: 20px; }
+    .price-card .savings { color: #10b981; font-size: 0.8rem; margin-bottom: 20px; }
+    .price-card ul { text-align: left; margin-bottom: 25px; padding-left: 20px; }
+    .price-card ul li { color: #666; font-size: 0.85rem; margin-bottom: 8px; }
+    .price-card button { width: 100%; background: #1a1a1a; color: #fff; padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; letter-spacing: 1px; transition: background 0.2s; }
+    .price-card button:hover { background: #333; }
+    .price-card button:disabled { background: #ccc; cursor: not-allowed; }
+    
     .faq { padding: 80px 20px; background: #fff; }
     .faq h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
     .faq-container { max-width: 800px; margin: 0 auto; }
     .faq-item { border-bottom: 1px solid #eee; padding: 25px 0; }
     .faq-item h3 { font-weight: 500; font-size: 1.1rem; margin-bottom: 12px; color: #1a1a1a; }
     .faq-item p { color: #666; line-height: 1.7; font-size: 0.95rem; }
+    
     footer { padding: 60px 20px; text-align: center; background: #1a1a1a; color: #fff; }
     footer p { opacity: 0.6; font-size: 0.8rem; }
-    .mockup-badge { position: fixed; top: 10px; right: 10px; background: #f59e0b; color: #000; padding: 8px 15px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; z-index: 1000; }
+    footer a { color: #fff; opacity: 0.6; margin: 0 10px; }
+    footer a:hover { opacity: 1; }
+    
     @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
       .science-inner { grid-template-columns: 1fr; }
       .benefits-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      nav .links { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="mockup-badge">🎨 MOCKUP</div>
   <nav>
     <div class="logo">SMOOTHSTRAW</div>
     <div class="links">
-      <a href="#science">SCIENCE</a>
-      <a href="#order">SHOP</a>
+      <a href="#how">HOW IT WORKS</a>
+      <a href="#pricing">PRICING</a>
       <a href="#faq">FAQ</a>
     </div>
   </nav>
+  
   <div class="hero">
+    <div class="launch-badge">PRE-LAUNCH • LAUNCHING Q2 2026</div>
     <div class="product-img">🥤</div>
     <h1>The Better Drinking Interface</h1>
-    <p>An ergonomic silicone straw tip that reduces lip strain and prevents wrinkles. Because you shouldn't have to work to take a sip.</p>
-    <a href="#order" class="cta">SHOP NOW</a>
-    <p class="price">Starting at $9.99 | Free shipping over $25</p>
+    <p class="tagline">An ergonomic silicone straw tip that reduces lip strain and prevents wrinkles. Because you shouldn't have to work to take a sip.</p>
+    
+    <div class="waitlist-form">
+      <h3>Join the Waitlist</h3>
+      <p>Be the first to know when we launch. Get 20% off your first order.</p>
+      <form id="waitlistForm">
+        <input type="text" id="name" placeholder="Your name" required>
+        <input type="email" id="email" placeholder="Your email" required>
+        <button type="submit">NOTIFY ME</button>
+      </form>
+      <div class="success" id="successMsg">✅ You're on the list! Check your email for your discount code.</div>
+    </div>
   </div>
+  
+  <section class="how-it-works" id="how">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3>Slip It On</h3>
+        <p>SmoothStraw fits over any standard straw in seconds. Compatible with Stanley, Yeti, metal, glass, and reusable straws.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3>Sip Naturally</h3>
+        <p>The soft silicone tip expands the contact area, allowing your lips to relax. No more pursing or muscle strain.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3>Enjoy for Years</h3>
+        <p>Dishwasher safe, heat resistant, and built to last. One SmoothStraw replaces thousands of disposable straws.</p>
+      </div>
+    </div>
+  </section>
+  
   <section class="science" id="science">
     <div class="science-inner">
       <div>
@@ -228,13 +286,60 @@
           <li>Reduces orbicularis oris muscle strain</li>
           <li>Improves seal without effort</li>
           <li>Food-grade silicone, FDA compliant</li>
-          <li>Fits most standard straws</li>
+          <li>Fits straws 6-10mm diameter</li>
         </ul>
       </div>
       <div class="diagram">👄→😌</div>
     </div>
   </section>
-  <section class="benefits" id="benefits">
+  
+  <section class="comparison">
+    <h2>SmoothStraw vs. Competitors</h2>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="highlight">SmoothStraw</th>
+          <th>Stanley Stay Smooth</th>
+          <th>Generic Tips</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ergonomic Design</td>
+          <td class="highlight checkmark">✓</td>
+          <td class="checkmark">✓</td>
+          <td class="cross">✗</td>
+        </tr>
+        <tr>
+          <td>Universal Fit</td>
+          <td class="highlight checkmark">✓</td>
+          <td class="cross">✗ (Stanley only)</td>
+          <td class="checkmark">✓</td>
+        </tr>
+        <tr>
+          <td>FDA Compliant Silicone</td>
+          <td class="highlight checkmark">✓</td>
+          <td class="checkmark">✓</td>
+          <td>❓ (varies)</td>
+        </tr>
+        <tr>
+          <td>Made in USA</td>
+          <td class="highlight checkmark">✓</td>
+          <td class="cross">✗</td>
+          <td class="cross">✗</td>
+        </tr>
+        <tr>
+          <td>Price (per unit)</td>
+          <td class="highlight">$7.99</td>
+          <td>$5.00</td>
+          <td>$2-4</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+  
+  <section class="benefits">
     <h2>Why SmoothStraw</h2>
     <div class="benefits-grid">
       <div class="benefit">
@@ -252,8 +357,24 @@
         <h3>Easy Clean</h3>
         <p>Dishwasher safe. Boil to sanitize. Lasts for years.</p>
       </div>
+      <div class="benefit">
+        <div class="icon">🌍</div>
+        <h3>Eco-Friendly</h3>
+        <p>Reusable, durable silicone. Replaces thousands of disposable straws.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon">🇺🇸</div>
+        <h3>Made in USA</h3>
+        <p>Designed and manufactured in Charleston, South Carolina.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon">🔒</div>
+        <h3>Safe & Certified</h3>
+        <p>FDA-compliant, BPA-free, platinum-cured silicone.</p>
+      </div>
     </div>
   </section>
+  
   <section class="compatibility">
     <h2>Works With Your Favorites</h2>
     <div class="cups">
@@ -261,6 +382,53 @@
       <div class="cup"><div class="img">☕</div><p>Yeti</p></div>
       <div class="cup"><div class="img">🧋</div><p>Boba</p></div>
       <div class="cup"><div class="img">🥛</div><p>Smoothies</p></div>
+      <div class="cup"><div class="img">🍹</div><p>Cocktails</p></div>
+    </div>
+  </section>
+  
+  <section class="pricing" id="pricing">
+    <h2>Pre-Order Pricing</h2>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <h3>Starter</h3>
+        <div class="price-amount">$9.99</div>
+        <div class="price-unit">1 SmoothStraw</div>
+        <ul>
+          <li>Universal fit</li>
+          <li>FDA-certified silicone</li>
+          <li>Dishwasher safe</li>
+          <li>Free shipping</li>
+        </ul>
+        <button onclick="preOrder('starter')">PRE-ORDER NOW</button>
+      </div>
+      
+      <div class="price-card popular">
+        <h3>Family Pack</h3>
+        <div class="price-amount">$24.99</div>
+        <div class="price-unit">4 SmoothStraws</div>
+        <div class="savings">Save $15 • Best Value</div>
+        <ul>
+          <li>Mix & match colors</li>
+          <li>Perfect for families</li>
+          <li>FDA-certified silicone</li>
+          <li>Free shipping</li>
+        </ul>
+        <button onclick="preOrder('family')">PRE-ORDER NOW</button>
+      </div>
+      
+      <div class="price-card">
+        <h3>Duo</h3>
+        <div class="price-amount">$16.99</div>
+        <div class="price-unit">2 SmoothStraws</div>
+        <div class="savings">Save $3</div>
+        <ul>
+          <li>One for home, one for work</li>
+          <li>FDA-certified silicone</li>
+          <li>Dishwasher safe</li>
+          <li>Free shipping</li>
+        </ul>
+        <button onclick="preOrder('duo')">PRE-ORDER NOW</button>
+      </div>
     </div>
   </section>
   
@@ -278,38 +446,88 @@
       </div>
       <div class="faq-item">
         <h3>What straws does SmoothStraw work with?</h3>
-        <p>SmoothStraw fits most standard straws including Stanley cup straws, Yeti straws, metal straws, glass straws, boba straws, and standard plastic straws. It works with both hot and cold beverages.</p>
+        <p>SmoothStraw fits most standard straws including Stanley cup straws, Yeti straws, metal straws, glass straws, boba straws, and standard plastic straws (6-10mm diameter). It works with both hot and cold beverages.</p>
       </div>
       <div class="faq-item">
-        <h3>How much does SmoothStraw cost?</h3>
-        <p>SmoothStraw starts at $9.99. We offer free shipping on orders over $25. Multi-packs are available at a discount.</p>
+        <h3>When will SmoothStraw be available?</h3>
+        <p>We're launching in Q2 2026. Pre-order now to secure early-bird pricing and be among the first to receive SmoothStraw. Join our waitlist for launch updates.</p>
       </div>
       <div class="faq-item">
         <h3>Is SmoothStraw safe and easy to clean?</h3>
-        <p>Yes! SmoothStraw is made from food-grade, FDA-compliant silicone. It's dishwasher safe and can be boiled to sanitize. With proper care, it lasts for years.</p>
+        <p>Yes! SmoothStraw is made from food-grade, FDA-compliant platinum-cured silicone. It's dishwasher safe and can be boiled to sanitize. With proper care, it lasts for years.</p>
       </div>
       <div class="faq-item">
         <h3>Where is SmoothStraw made?</h3>
-        <p>SmoothStraw is proudly made in the USA, in Charleston, South Carolina.</p>
+        <p>SmoothStraw is proudly designed and manufactured in the USA, in Charleston, South Carolina.</p>
+      </div>
+      <div class="faq-item">
+        <h3>What's your return policy?</h3>
+        <p>We offer a 30-day satisfaction guarantee. If you're not happy with your SmoothStraw, return it for a full refund.</p>
       </div>
     </div>
   </section>
   
-  <section id="order" style="padding: 80px 20px; background: #f5f5f5; text-align: center;">
-    <h2 style="font-weight: 300; font-size: 2rem; margin-bottom: 20px;">Ready to Transform Your Drinking Experience?</h2>
-    <p style="color: #666; margin-bottom: 30px;">Join thousands of happy sippers. Get 20% off your first order!</p>
-    <a href="#" class="cta" style="background: #1a1a1a; color: #fff; padding: 15px 50px; font-size: 0.9rem; letter-spacing: 2px; text-decoration: none; display: inline-block;">ORDER NOW</a>
-  </section>
-  
   <footer>
-    <p>© 2026 SmoothStraw. Made with care in Charleston, SC | <a href="#" style="color: #fff;">Contact</a> | <a href="#" style="color: #fff;">Returns</a> | <a href="#" style="color: #fff;">Privacy</a></p>
+    <p>© 2026 SmoothStraw. Made with care in Charleston, SC</p>
+    <p>
+      <a href="mailto:hello@smoothstraw.com">Contact</a> |
+      <a href="#returns">Returns</a> |
+      <a href="#privacy">Privacy</a>
+    </p>
   </footer>
-<script src="/js/feedback-widget.js" data-bot="smoothstraw"></script>
 
-<!-- Feedback Widget -->
-<style>.fb-btn{position:fixed;bottom:15px;right:15px;background:rgba(0,0,0,0.05);color:#6b7280;padding:8px 14px;border-radius:20px;cursor:pointer;font-size:12px;z-index:9999;border:1px solid rgba(0,0,0,0.1);transition:all 0.2s;opacity:0.4}.fb-btn:hover{opacity:1;background:rgba(0,0,0,0.08);transform:translateY(-1px)}.fb-modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:10000;align-items:center;justify-content:center}.fb-modal.active{display:flex}.fb-content{background:#fff;padding:30px;border-radius:12px;max-width:500px;width:90%}.fb-content h3{margin:0 0 20px;color:#1f2937}.fb-content textarea,.fb-content input{width:100%;padding:12px;margin-bottom:15px;border:1px solid #d1d5db;border-radius:6px;font-size:14px}.fb-content textarea{min-height:120px}.fb-btns{display:flex;gap:10px;justify-content:flex-end}.fb-btns button{padding:10px 20px;border-radius:6px;border:none;cursor:pointer;font-weight:600}.fb-submit{background:#3b82f6;color:#fff}.fb-cancel{background:#e5e7eb;color:#374151}.fb-ok{color:#10b981;margin-top:10px;display:none}</style>
-<button class="fb-btn" onclick="openFB()">💬 Feedback</button>
-<div class="fb-modal" id="fbModal"><div class="fb-content"><h3>Send Feedback</h3><input id="fbEmail" placeholder="Your email (optional)"><textarea id="fbMsg" placeholder="Share your thoughts, report a bug, or request a feature..."></textarea><div class="fb-btns"><button class="fb-cancel" onclick="closeFB()">Cancel</button><button class="fb-submit" onclick="sendFB()">Submit</button></div><div class="fb-ok" id="fbOk">✅ Thank you! Your feedback has been sent.</div></div></div>
-<script>function openFB(){document.getElementById('fbModal').classList.add('active')}function closeFB(){document.getElementById('fbModal').classList.remove('active');document.getElementById('fbMsg').value='';document.getElementById('fbEmail').value='';document.getElementById('fbOk').style.display='none'}function sendFB(){const msg=document.getElementById('fbMsg').value;if(!msg.trim()){alert('Please enter a message');return}console.log('Feedback:',{site:location.hostname,msg});document.getElementById('fbOk').style.display='block';setTimeout(closeFB,2000)}document.getElementById('fbModal').onclick=function(e){if(e.target===this)closeFB()}</script>
+  <script>
+    // Waitlist form submission
+    document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      
+      try {
+        // TODO: Replace with actual backend endpoint
+        // For now, just log and show success
+        console.log('Waitlist signup:', { name, email });
+        
+        // In production, this would call your backend:
+        // await fetch('/api/waitlist', {
+        //   method: 'POST',
+        //   headers: { 'Content-Type': 'application/json' },
+        //   body: JSON.stringify({ name, email })
+        // });
+        
+        document.getElementById('waitlistForm').style.display = 'none';
+        document.getElementById('successMsg').style.display = 'block';
+      } catch (error) {
+        alert('Something went wrong. Please try again.');
+      }
+    });
+    
+    // Stripe integration (test mode)
+    const stripe = Stripe('pk_test_51RCANi2M7qgz6dWCRt9dJFjXbzqHCZZQFLiJEqSMqnaxUL9xIlz0cJv3rQq9nvTr85e3Rj6s9k6Nd3sMJYbXwUxJ00SBm7Uw8M');
+    
+    async function preOrder(plan) {
+      const prices = {
+        starter: 'price_starter',  // TODO: Create these in Stripe Dashboard
+        duo: 'price_duo',
+        family: 'price_family'
+      };
+      
+      alert('Pre-orders will be available when we launch in Q2 2026. Join the waitlist to be notified!');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // When ready to enable Stripe:
+      // try {
+      //   const response = await fetch('/api/create-checkout-session', {
+      //     method: 'POST',
+      //     headers: { 'Content-Type': 'application/json' },
+      //     body: JSON.stringify({ priceId: prices[plan] })
+      //   });
+      //   const session = await response.json();
+      //   await stripe.redirectToCheckout({ sessionId: session.id });
+      // } catch (error) {
+      //   alert('Unable to process order. Please try again.');
+      // }
+    }
+  </script>
 </body>
 </html>
