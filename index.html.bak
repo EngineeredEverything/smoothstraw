@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmoothStraw - The Better Drinking Interface</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #fafafa; color: #1a1a1a; }
+    nav { padding: 20px 40px; display: flex; justify-content: space-between; align-items: center; background: #fff; }
+    nav .logo { font-weight: 300; font-size: 1.4rem; letter-spacing: 2px; }
+    nav .links a { color: #666; text-decoration: none; margin-left: 30px; font-size: 0.85rem; letter-spacing: 1px; }
+    .hero { padding: 120px 20px; text-align: center; background: #fff; }
+    .hero .product-img { font-size: 8rem; margin-bottom: 30px; }
+    .hero h1 { font-size: 2.5rem; font-weight: 300; margin-bottom: 15px; letter-spacing: 1px; }
+    .hero p { color: #666; font-size: 1.1rem; max-width: 500px; margin: 0 auto 40px; line-height: 1.7; }
+    .hero .cta { background: #1a1a1a; color: #fff; padding: 15px 50px; font-size: 0.9rem; letter-spacing: 2px; text-decoration: none; display: inline-block; }
+    .hero .price { margin-top: 15px; color: #888; font-size: 0.9rem; }
+    .science { padding: 80px 20px; background: #f5f5f5; }
+    .science-inner { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .science h2 { font-weight: 300; font-size: 2rem; margin-bottom: 20px; }
+    .science p { color: #666; line-height: 1.8; margin-bottom: 20px; }
+    .science ul { color: #666; line-height: 2; padding-left: 20px; }
+    .science .diagram { font-size: 6rem; text-align: center; }
+    .benefits { padding: 80px 20px; background: #fff; }
+    .benefits h2 { text-align: center; font-weight: 300; font-size: 2rem; margin-bottom: 50px; }
+    .benefits-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .benefit { text-align: center; }
+    .benefit .icon { font-size: 2.5rem; margin-bottom: 15px; }
+    .benefit h3 { font-weight: 500; margin-bottom: 10px; font-size: 1rem; }
+    .benefit p { color: #888; font-size: 0.85rem; line-height: 1.6; }
+    .compatibility { padding: 60px 20px; background: #f5f5f5; text-align: center; }
+    .compatibility h2 { font-weight: 300; margin-bottom: 30px; }
+    .cups { display: flex; justify-content: center; gap: 40px; flex-wrap: wrap; }
+    .cup { text-align: center; }
+    .cup .img { font-size: 3rem; }
+    .cup p { font-size: 0.8rem; color: #888; margin-top: 5px; }
+    footer { padding: 60px 20px; text-align: center; background: #1a1a1a; color: #fff; }
+    footer p { opacity: 0.6; font-size: 0.8rem; }
+    .mockup-badge { position: fixed; top: 10px; right: 10px; background: #f59e0b; color: #000; padding: 8px 15px; font-size: 0.75rem; font-weight: bold; border-radius: 4px; z-index: 1000; }
+  </style>
+</head>
+<body>
+  <div class="mockup-badge">🎨 MOCKUP</div>
+  <nav>
+    <div class="logo">SMOOTHSTRAW</div>
+    <div class="links">
+      <a href="#">SCIENCE</a>
+      <a href="#">SHOP</a>
+      <a href="#">FAQ</a>
+    </div>
+  </nav>
+  <div class="hero">
+    <div class="product-img">🥤</div>
+    <h1>The Better Drinking Interface</h1>
+    <p>An ergonomic silicone straw tip that reduces lip strain and improves comfort. Because you shouldn't have to work to take a sip.</p>
+    <a href="#" class="cta">SHOP NOW</a>
+    <p class="price">Starting at $9.99 | Free shipping over $25</p>
+  </div>
+  <section class="science">
+    <div class="science-inner">
+      <div>
+        <h2>Engineered for Comfort</h2>
+        <p>Traditional straws require pursed lips and constant muscle engagement. SmoothStraw expands the contact area, distributing pressure and allowing a relaxed seal.</p>
+        <ul>
+          <li>Reduces orbicularis oris muscle strain</li>
+          <li>Improves seal without effort</li>
+          <li>Food-grade silicone, FDA compliant</li>
+          <li>Fits most standard straws</li>
+        </ul>
+      </div>
+      <div class="diagram">👄→😌</div>
+    </div>
+  </section>
+  <section class="benefits">
+    <h2>Why SmoothStraw</h2>
+    <div class="benefits-grid">
+      <div class="benefit">
+        <div class="icon">😌</div>
+        <h3>Effortless Sipping</h3>
+        <p>No more pursing. Just a natural, relaxed drinking posture.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon">✨</div>
+        <h3>Fewer Lines</h3>
+        <p>Less repetitive lip compression means less facial strain over time.</p>
+      </div>
+      <div class="benefit">
+        <div class="icon">🧼</div>
+        <h3>Easy Clean</h3>
+        <p>Dishwasher safe. Boil to sanitize. Lasts for years.</p>
+      </div>
+    </div>
+  </section>
+  <section class="compatibility">
+    <h2>Works With Your Favorites</h2>
+    <div class="cups">
+      <div class="cup"><div class="img">🥤</div><p>Stanley</p></div>
+      <div class="cup"><div class="img">☕</div><p>Yeti</p></div>
+      <div class="cup"><div class="img">🧋</div><p>Boba</p></div>
+      <div class="cup"><div class="img">🥛</div><p>Smoothies</p></div>
+    </div>
+  </section>
+  <footer>
+    <p>© 2026 SmoothStraw. Minimal. Clean. Intelligent. | Contact | Returns</p>
+  </footer>
+<script src="/js/feedback-widget.js" data-bot="smoothstraw"></script>
+</body>
+</html>
