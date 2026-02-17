@@ -1,0 +1,17 @@
+{
+  "name": "smoothstraw-website",
+  "version": "1.0.0",
+  "description": "SmoothStraw - Premium silicone straw tips",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 8000",
+    "deploy": "vercel --prod"
+  },
+  "dependencies": {
+    "stripe": "^14.0.0"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
