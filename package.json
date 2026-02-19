@@ -8,9 +8,9 @@
     "deploy": "vercel --prod"
   },
   "dependencies": {
+    "express": "^5.2.1",
     "stripe": "^14.0.0"
   },
-  "devDependencies": {},
   "engines": {
     "node": ">=18.0.0"
   }
