@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmoothStraw Admin — Waitlist</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ── Login Gate ── */
+    #loginGate {
+      background: #1a1a1a;
+      border: 1px solid #2a2a2a;
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+    }
+    #loginGate h1 { font-size: 1.4rem; font-weight: 400; letter-spacing: 2px; margin-bottom: 8px; }
+    #loginGate p { color: #666; font-size: 0.85rem; margin-bottom: 24px; }
+    #loginGate input {
+      width: 100%; padding: 12px 14px; background: #111; border: 1px solid #333;
+      border-radius: 6px; color: #fff; font-size: 0.95rem; margin-bottom: 12px;
+      outline: none; transition: border-color 0.2s;
+    }
+    #loginGate input:focus { border-color: #555; }
+    #loginGate button {
+      width: 100%; padding: 12px; background: #fff; color: #0f0f0f;
+      border: none; border-radius: 6px; font-size: 0.9rem; letter-spacing: 1px;
+      cursor: pointer; font-weight: 500; transition: background 0.2s;
+    }
+    #loginGate button:hover { background: #e5e5e5; }
+    #loginError { color: #ef4444; font-size: 0.85rem; margin-top: 10px; display: none; }
+
+    /* ── Dashboard ── */
+    #dashboard { display: none; width: 100%; max-width: 1000px; padding: 40px 20px; }
+
+    header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 32px;
+    }
+    header h1 { font-size: 1.3rem; font-weight: 400; letter-spacing: 2px; color: #fff; }
+    header .meta { color: #555; font-size: 0.85rem; }
+
+    .stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+      margin-bottom: 32px;
+    }
+    .stat-card {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px;
+      padding: 24px; text-align: center;
+    }
+    .stat-card .num { font-size: 2.2rem; font-weight: 300; color: #fff; }
+    .stat-card .label { font-size: 0.75rem; color: #555; letter-spacing: 1px; margin-top: 6px; text-transform: uppercase; }
+
+    .toolbar {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 16px;
+    }
+    .toolbar h2 { font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; color: #888; }
+    .export-btn {
+      background: transparent; border: 1px solid #333; color: #ccc;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.8rem;
+      letter-spacing: 1px; transition: all 0.2s;
+    }
+    .export-btn:hover { border-color: #666; color: #fff; }
+
+    .table-wrap {
+      background: #1a1a1a; border: 1px solid #2a2a2a; border-radius: 10px;
+      overflow: hidden;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead th {
+      padding: 14px 20px; text-align: left; font-size: 0.75rem;
+      letter-spacing: 1px; text-transform: uppercase; color: #555;
+      border-bottom: 1px solid #2a2a2a; font-weight: 400;
+    }
+    tbody tr { transition: background 0.15s; }
+    tbody tr:hover { background: #222; }
+    tbody td {
+      padding: 14px 20px; font-size: 0.9rem; color: #ddd;
+      border-bottom: 1px solid #1e1e1e;
+    }
+    tbody tr:last-child td { border-bottom: none; }
+    tbody td.email { color: #aaa; }
+    tbody td.ts { color: #555; font-size: 0.8rem; }
+    #emptyMsg {
+      text-align: center; padding: 48px; color: #444; font-size: 0.9rem;
+      display: none;
+    }
+
+    .refresh-btn {
+      background: transparent; border: 1px solid #2a2a2a; color: #555;
+      padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.75rem;
+      margin-left: 10px; transition: all 0.2s;
+    }
+    .refresh-btn:hover { border-color: #444; color: #888; }
+    #loadingMsg { color: #555; font-size: 0.85rem; padding: 24px; text-align: center; }
+    #errorMsg { color: #ef4444; font-size: 0.85rem; padding: 24px; text-align: center; display: none; }
+
+    @media (max-width: 600px) {
+      .stats { grid-template-columns: 1fr; }
+      body { align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Login Gate ── -->
+  <div id="loginGate">
+    <h1>SMOOTHSTRAW</h1>
+    <p>Admin — Waitlist Dashboard</p>
+    <input type="password" id="pwInput" placeholder="Password" autofocus>
+    <button onclick="login()">Enter</button>
+    <div id="loginError">Incorrect password. Try again.</div>
+  </div>
+
+  <!-- ── Dashboard ── -->
+  <div id="dashboard">
+    <header>
+      <h1>SMOOTHSTRAW <span style="color:#444;font-size:0.85rem;letter-spacing:1px;">/ ADMIN</span></h1>
+      <div class="meta">
+        Waitlist Dashboard
+        <button class="refresh-btn" onclick="loadWaitlist()">↻ Refresh</button>
+      </div>
+    </header>
+
+    <div class="stats">
+      <div class="stat-card">
+        <div class="num" id="totalCount">—</div>
+        <div class="label">Total Signups</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="todayCount">—</div>
+        <div class="label">Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="num" id="weekCount">—</div>
+        <div class="label">This Week</div>
+      </div>
+    </div>
+
+    <div class="toolbar">
+      <h2>Signups</h2>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+
+    <div class="table-wrap">
+      <div id="loadingMsg">Loading…</div>
+      <div id="errorMsg">Failed to load waitlist. Check server status.</div>
+      <div id="emptyMsg">No signups yet. Share the link! 🚀</div>
+      <table id="waitlistTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Signed Up</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    let storedPassword = '';
+    let waitlistData = [];
+
+    function login() {
+      const pw = document.getElementById('pwInput').value;
+      if (pw === 'smoothstraw2026') {
+        storedPassword = pw;
+        document.getElementById('loginGate').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        loadWaitlist();
+      } else {
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('pwInput').value = '';
+        document.getElementById('pwInput').focus();
+      }
+    }
+
+    document.getElementById('pwInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    async function loadWaitlist() {
+      document.getElementById('loadingMsg').style.display = 'block';
+      document.getElementById('waitlistTable').style.display = 'none';
+      document.getElementById('emptyMsg').style.display = 'none';
+      document.getElementById('errorMsg').style.display = 'none';
+
+      try {
+        const credentials = btoa('admin:' + storedPassword);
+        const res = await fetch('/api/waitlist', {
+          headers: { 'Authorization': 'Basic ' + credentials }
+        });
+
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+
+        const data = await res.json();
+        waitlistData = data.waitlist || [];
+        renderTable(waitlistData);
+        updateStats(waitlistData);
+      } catch (err) {
+        document.getElementById('loadingMsg').style.display = 'none';
+        document.getElementById('errorMsg').style.display = 'block';
+        console.error(err);
+      }
+    }
+
+    function renderTable(list) {
+      document.getElementById('loadingMsg').style.display = 'none';
+      const tbody = document.getElementById('tableBody');
+      tbody.innerHTML = '';
+
+      if (list.length === 0) {
+        document.getElementById('emptyMsg').style.display = 'block';
+        return;
+      }
+
+      const sorted = [...list].reverse(); // newest first
+      sorted.forEach((entry, i) => {
+        const ts = new Date(entry.timestamp);
+        const row = `<tr>
+          <td style="color:#444">${list.length - i}</td>
+          <td>${escHtml(entry.name)}</td>
+          <td class="email">${escHtml(entry.email)}</td>
+          <td class="ts">${ts.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' })} ${ts.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit' })}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+
+      document.getElementById('waitlistTable').style.display = 'table';
+    }
+
+    function updateStats(list) {
+      document.getElementById('totalCount').textContent = list.length;
+
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const weekStart = new Date(todayStart); weekStart.setDate(todayStart.getDate() - 7);
+
+      const todayCount = list.filter(e => new Date(e.timestamp) >= todayStart).length;
+      const weekCount  = list.filter(e => new Date(e.timestamp) >= weekStart).length;
+
+      document.getElementById('todayCount').textContent = todayCount;
+      document.getElementById('weekCount').textContent = weekCount;
+    }
+
+    function exportCSV() {
+      if (!waitlistData.length) { alert('No data to export.'); return; }
+      const rows = [['#', 'Name', 'Email', 'Timestamp']];
+      waitlistData.forEach((e, i) => {
+        rows.push([i + 1, e.name, e.email, e.timestamp]);
+      });
+      const csv = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'smoothstraw-waitlist.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function escHtml(str) {
+      return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+  </script>
+</body>
+</html>

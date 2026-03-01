@@ -124,6 +124,9 @@
   }
   </script>
 
+  <!-- Plausible Analytics -->
+  <script defer data-domain="smoothstraw.com" src="https://plausible.io/js/script.js"></script>
+
   <!-- Stripe.js -->
   <script src="https://js.stripe.com/v3/"></script>
 
@@ -480,25 +483,40 @@
     // Waitlist form submission
     document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const btn = e.target.querySelector('button[type="submit"]');
+
+      btn.textContent = 'JOINING...';
+      btn.disabled = true;
+
       try {
-        // TODO: Replace with actual backend endpoint
-        // For now, just log and show success
-        console.log('Waitlist signup:', { name, email });
-        
-        // In production, this would call your backend:
-        // await fetch('/api/waitlist', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ name, email })
-        // });
-        
-        document.getElementById('waitlistForm').style.display = 'none';
-        document.getElementById('successMsg').style.display = 'block';
+        const res = await fetch('/api/waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email })
+        });
+
+        const data = await res.json();
+
+        if (res.ok || data.duplicate) {
+          document.getElementById('waitlistForm').style.display = 'none';
+          const msg = document.getElementById('successMsg');
+          msg.style.display = 'block';
+          if (data.duplicate) {
+            msg.textContent = '👋 You\'re already on the list! We\'ll be in touch soon.';
+          }
+        } else {
+          throw new Error(data.error || 'Server error');
+        }
       } catch (error) {
-        alert('Something went wrong. Please try again.');
+        btn.textContent = 'NOTIFY ME';
+        btn.disabled = false;
+        const msg = document.getElementById('successMsg');
+        msg.style.display = 'block';
+        msg.style.color = '#ef4444';
+        msg.textContent = '❌ Something went wrong. Please try again.';
+        setTimeout(() => { msg.style.display = 'none'; }, 4000);
       }
     });
     
